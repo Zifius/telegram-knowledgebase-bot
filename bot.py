@@ -38,6 +38,11 @@ def handle_wtf(bot, update):
     update.message.reply_text('Hello from the WTF command! There will be information here later.')
 
 
+def handle_hello(bot, update):
+    logger.debug("HELLO received: %s", update.message.text)
+    update.message.reply_text("Servus, {}!".format(update.message.from_user.first_name))
+
+
 def echo(bot, update):
     """Echo the user message."""
     logger.debug("Echo received: %s", update.message.text)
@@ -87,6 +92,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("wtf", handle_wtf))
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("hallo", handle_hello))
     dp.add_handler(CommandHandler("help", help))
 
     dp.add_handler(MessageHandler(Filters.text, echo))
