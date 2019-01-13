@@ -7,13 +7,28 @@ from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMod
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from telegram.utils.helpers import escape_markdown
 
+from model import session
+from model import User, Definition, Channel
 import hello
+
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
+
+
+# TODO: move database opearations to a separate module
+def add_user(user_id, user_name):
+    exists = session.query(User.id).filter_by(id=user_id).scalar() is not None
+    logger.debug("User {} exists".format(id))
+    if not exists:
+        user = User(id=user_id, name=user_name)
+        session.add(user)
+        session.commit()
+    else:
+        logger.debug("User {} exists".format(user_id))
 
 
 def error(bot, update, error):
@@ -40,6 +55,7 @@ def handle_wtf(bot, update):
 
 def handle_hello(bot, update):
     logger.debug("HELLO received: %s", update.message.text)
+    add_user(update.message.from_user.id, update.message.from_user.first_name)
     update.message.reply_text("{}, {}!".format(hello.get_hello(), update.message.from_user.first_name))
 
 
@@ -79,6 +95,7 @@ def inlinequery(bot, update):
 def main():
     logger.info("Starting up...")
     # Create the Updater and pass it your bot's token.
+
     token = os.environ["bot_token"]
     if token is None:
         logger.error("Cannot find bot_token env. variable that is required. Stopping.")
