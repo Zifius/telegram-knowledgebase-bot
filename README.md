@@ -1,16 +1,17 @@
 # Telegram Knowledge Base Bot
 
-## Commands:
+## Commands
 
-/wtf term 'here goes long term definition with links etc.'
+`/wtf term 'here goes long term definition with links etc.'`
 
 _Bot saves definition in the database per channel with username of user calling the command_
 
-/wtf term
+`/wtf term`
 
 _Bot outputs definition along with nick of the user who defined it_
 
-## Features
+## Proposed features
 
 * Admins of a channel should be able to override and remove definitions of other users
 * Bot should be able to fetch markdown pages from a specified GitHub repository
+* Optional ability to share (import) terms between channels
