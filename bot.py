@@ -1,15 +1,9 @@
 import logging
 import os
 
-from uuid import uuid4
-
-from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
-from telegram.utils.helpers import escape_markdown
 
-from model import session
-from model import User, Definition, Channel
-import hello
+from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery
 
 
 # Enable logging
@@ -17,80 +11,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: move database opearations to a separate module
-def add_user(user_id, user_name):
-    exists = session.query(User.id).filter_by(id=user_id).scalar() is not None
-    logger.debug("User {} exists".format(id))
-    if not exists:
-        user = User(id=user_id, name=user_name)
-        session.add(user)
-        session.commit()
-    else:
-        logger.debug("User {} exists".format(user_id))
-
-
-def error(bot, update, error):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
-
-
-def help(bot, update):
-    """Send a message when the command /help is issued."""
-    logger.debug("Help received: %s", update.message.text)
-    update.message.reply_text('Use the /wtf command!')
-
-
-def start(bot, update):
-    """Send a message when the command /start is issued."""
-    logger.debug("Start received: %s", update.message.text)
-    update.message.reply_text('Hi! Please use the WTF command to get data.')
-
-
-def handle_wtf(bot, update):
-    logger.debug("WTF received: %s", update.message.text)
-    update.message.reply_text('Hello from the WTF command! There will be information here later.')
-
-
-def handle_hello(bot, update):
-    logger.debug("HELLO received: %s", update.message.text)
-    add_user(update.message.from_user.id, update.message.from_user.first_name)
-    update.message.reply_text("{}, {}!".format(hello.get_hello(), update.message.from_user.first_name))
-
-
-def echo(bot, update):
-    """Echo the user message."""
-    logger.debug("Echo received: %s", update.message.text)
-    update.message.reply_text(update.message.text)
-
-
-def inlinequery(bot, update):
-    """Handle the inline query."""
-    query = update.inline_query.query
-
-    logger.debug("Inline query received: %s", query)
-    results = [
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title="Caps",
-            input_message_content=InputTextMessageContent(
-                query.upper())),
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title="Bold",
-            input_message_content=InputTextMessageContent(
-                "*{}*".format(escape_markdown(query)),
-                parse_mode=ParseMode.MARKDOWN)),
-        InlineQueryResultArticle(
-            id=uuid4(),
-            title="Italic",
-            input_message_content=InputTextMessageContent(
-                "_{}_".format(escape_markdown(query)),
-                parse_mode=ParseMode.MARKDOWN))]
-
-    update.inline_query.answer(results)
-
 
 def main():
     logger.info("Starting up...")
@@ -107,9 +27,9 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("wtf", handle_wtf))
+    dp.add_handler(CommandHandler("wtf", definitionHandler.handle))
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("hallo", handle_hello))
+    dp.add_handler(CommandHandler("hallo", helloHandler.handle))
     dp.add_handler(CommandHandler("help", help))
 
     dp.add_handler(MessageHandler(Filters.text, echo))

@@ -2,6 +2,7 @@ from sqlalchemy import Table, Column, ForeignKey,  Integer, String, Text, DateTi
 from sqlalchemy.orm import relationship, sessionmaker, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
@@ -29,6 +30,10 @@ class Definition(Base):
     created = Column(DateTime)
     updated = Column(DateTime)
 
+    def __init__(self, term, content):
+        self.term = term
+        self.content = content
+
 
 association_table = Table('channel_definition', Base.metadata,
     Column('channel', Integer, ForeignKey('channel.id')),
@@ -42,5 +47,62 @@ engine = create_engine('sqlite:///bot.sqlite')
 # Create all tables in the engine. This is equivalent to "Create Table"
 # statements in raw SQL.
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+_SessionFactory = sessionmaker(bind=engine)
+
+
+def session_factory():
+    return _SessionFactory()
+
+
+class DefinitionRepo:
+    """Repo for our deffs"""
+
+    def __init__(self, session):
+        self.session = session
+
+    def persist(self, quote):
+        """TODO: add update / create time"""
+        self.session.add(quote)
+        self.session.commit()
+        self.session.flush()
+
+    def delete(self, object_id):
+        self.session.delete(self.findById(object_id))
+
+    def findByTerm(self, term):
+        return self.session.query(Definition).filter_by(term=term).scalar()
+
+    def findAll(self):
+        return self.session.query(Definition).order_by(Definition.id)
+
+    def findById(self, objectid):
+        return self.session.query(Definition).filter_by(id=objectid).scalar()
+
+    def __del__(self):
+        self.session.flush()
+        self.session.close()
+
+
+class UserRepo:
+    """Repo for our quotes"""
+
+    def __init__(self, session):
+        self.session = session
+
+    def persist(self, user):
+        self.session.add(user)
+        self.session.commit()
+        self.session.flush()
+
+    def delete(self, object_id):
+        self.session.delete(self.findById(object_id))
+
+    def findById(self, objectid):
+        return self.session.query(Definition).filter_by(id=objectid).scalar()
+
+
+_session = session_factory()
+definitionRepo = DefinitionRepo(_session)
+userRepo = UserRepo(_session)
+
+
