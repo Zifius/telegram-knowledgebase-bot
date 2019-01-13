@@ -7,7 +7,7 @@ from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMod
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from telegram.utils.helpers import escape_markdown
 
-
+import hello
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -36,6 +36,11 @@ def start(bot, update):
 def handle_wtf(bot, update):
     logger.debug("WTF received: %s", update.message.text)
     update.message.reply_text('Hello from the WTF command! There will be information here later.')
+
+
+def handle_hello(bot, update):
+    logger.debug("HELLO received: %s", update.message.text)
+    update.message.reply_text("{}, {}!".format(hello.get_hello(), update.message.from_user.first_name))
 
 
 def echo(bot, update):
@@ -87,6 +92,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("wtf", handle_wtf))
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("hallo", handle_hello))
     dp.add_handler(CommandHandler("help", help))
 
     dp.add_handler(MessageHandler(Filters.text, echo))
