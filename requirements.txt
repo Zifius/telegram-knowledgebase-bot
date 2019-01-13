@@ -1,9 +1,15 @@
+alembic==1.0.6
 asn1crypto==0.24.0
 certifi==2018.11.29
 cffi==1.11.5
 cryptography==2.4.2
 future==0.17.1
 idna==2.8
+Mako==1.0.7
+MarkupSafe==1.1.0
 pycparser==2.19
+python-dateutil==2.7.5
+python-editor==1.0.3
 python-telegram-bot==11.1.0
 six==1.12.0
+SQLAlchemy==1.2.16
