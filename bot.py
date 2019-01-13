@@ -7,7 +7,7 @@ from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMod
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from telegram.utils.helpers import escape_markdown
 
-
+import hello
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -40,7 +40,7 @@ def handle_wtf(bot, update):
 
 def handle_hello(bot, update):
     logger.debug("HELLO received: %s", update.message.text)
-    update.message.reply_text("Servus, {}!".format(update.message.from_user.first_name))
+    update.message.reply_text("{}, {}!".format(hello.get_hello(), update.message.from_user.first_name))
 
 
 def echo(bot, update):
