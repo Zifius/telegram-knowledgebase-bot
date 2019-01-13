@@ -15,6 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
@@ -25,6 +26,7 @@ def help(bot, update):
     logger.debug("Help received: %s", update.message.text)
     update.message.reply_text('Use the /wtf command!')
 
+
 def start(bot, update):
     """Send a message when the command /start is issued."""
     logger.debug("Start received: %s", update.message.text)
@@ -34,6 +36,7 @@ def start(bot, update):
 def handle_wtf(bot, update):
     logger.debug("WTF received: %s", update.message.text)
     update.message.reply_text('Hello from the WTF command! There will be information here later.')
+
 
 def echo(bot, update):
     """Echo the user message."""
@@ -66,6 +69,7 @@ def inlinequery(bot, update):
                 parse_mode=ParseMode.MARKDOWN))]
 
     update.inline_query.answer(results)
+
 
 def main():
     logger.info("Starting up...")
