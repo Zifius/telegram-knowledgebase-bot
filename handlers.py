@@ -3,16 +3,31 @@ from uuid import uuid4
 
 from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMode
 from telegram.utils.helpers import escape_markdown
-from model import userRepo, definitionRepo, User, Definition
+from model import userRepo, definitionRepo, User, Definition, Session
 
 import hello
 
 logger = logging.getLogger(__name__)
 
 
-class DefinitionHandler:
+class PersistenceAwareHandler:
+
+    def handle_command(self, bot, update):
+        session = Session()
+        try:
+            self.handle(bot, update)
+        finally:
+            session.commit()
+            Session.remove()
+
+    def handle(self, bot, update):
+        raise NotImplementedError("Not implemented")
+
+
+class DefinitionHandler(PersistenceAwareHandler):
 
     def __init__(self, definition_repo):
+        super().__init__()
         self.definitionRepo = definition_repo
 
     def handle(self, bot, update):
@@ -45,9 +60,10 @@ class DefinitionHandler:
             reply(("Term '{}' means: {}".format(definition.term, definition.content)))
 
 
-class HelloHandler:
+class HelloHandler(PersistenceAwareHandler):
 
     def __init__(self, user_repo):
+        super().__init__()
         self.userRepo = user_repo
 
     def handle(self, bot, update):

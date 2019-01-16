@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, ForeignKey,  Integer, String, Text, DateTime
-from sqlalchemy.orm import relationship, sessionmaker, backref
+from sqlalchemy.orm import relationship, sessionmaker, backref, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -48,6 +48,7 @@ engine = create_engine('sqlite:///bot.sqlite')
 # statements in raw SQL.
 Base.metadata.create_all(engine)
 _SessionFactory = sessionmaker(bind=engine)
+Session = scoped_session(_SessionFactory)
 
 
 def session_factory():
@@ -57,52 +58,37 @@ def session_factory():
 class DefinitionRepo:
     """Repo for our deffs"""
 
-    def __init__(self, session):
-        self.session = session
-
     def persist(self, quote):
         """TODO: add update / create time"""
-        self.session.add(quote)
-        self.session.commit()
-        self.session.flush()
+        Session().add(quote)
 
     def delete(self, object_id):
-        self.session.delete(self.findById(object_id))
+        Session().delete(self.findById(object_id))
 
     def findByTerm(self, term):
-        return self.session.query(Definition).filter_by(term=term).scalar()
+        return Session().query(Definition).filter_by(term=term).scalar()
 
     def findAll(self):
-        return self.session.query(Definition).order_by(Definition.id)
+        return Session().query(Definition).order_by(Definition.id)
 
     def findById(self, objectid):
-        return self.session.query(Definition).filter_by(id=objectid).scalar()
-
-    def __del__(self):
-        self.session.flush()
-        self.session.close()
+        return Session().query(Definition).filter_by(id=objectid).scalar()
 
 
 class UserRepo:
     """Repo for our quotes"""
 
-    def __init__(self, session):
-        self.session = session
-
     def persist(self, user):
-        self.session.add(user)
-        self.session.commit()
-        self.session.flush()
+        Session().add(user)
 
     def delete(self, object_id):
-        self.session.delete(self.findById(object_id))
+        Session().delete(self.findById(object_id))
 
     def findById(self, objectid):
-        return self.session.query(Definition).filter_by(id=objectid).scalar()
+        return Session().query(Definition).filter_by(id=objectid).scalar()
 
 
-_session = session_factory()
-definitionRepo = DefinitionRepo(_session)
-userRepo = UserRepo(_session)
+definitionRepo = DefinitionRepo()
+userRepo = UserRepo()
 
 

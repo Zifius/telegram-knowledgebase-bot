@@ -27,9 +27,9 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("wtf", definitionHandler.handle))
+    dp.add_handler(CommandHandler("wtf", definitionHandler.handle_command))
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("hallo", helloHandler.handle))
+    dp.add_handler(CommandHandler("hallo", helloHandler.handle_command))
     dp.add_handler(CommandHandler("help", help))
 
     dp.add_handler(MessageHandler(Filters.text, echo))
