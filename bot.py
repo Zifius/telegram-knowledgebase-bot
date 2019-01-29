@@ -3,7 +3,7 @@ import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 
-from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery
+from handlers import listDefinitionsHandler, definitionHandler, start, helloHandler, error, echo, inlinequery
 
 
 # Enable logging
@@ -28,6 +28,7 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("wtf", definitionHandler.handle_command))
+    dp.add_handler(CommandHandler("list", listDefinitionsHandler.handle_command))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("hallo", helloHandler.handle_command))
     dp.add_handler(CommandHandler("help", help))
