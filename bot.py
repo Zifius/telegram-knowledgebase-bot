@@ -3,7 +3,7 @@ import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 
-from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery
+from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery, help
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
