@@ -85,7 +85,7 @@ class UserRepo:
         Session().delete(self.findById(object_id))
 
     def findById(self, objectid):
-        return Session().query(Definition).filter_by(id=objectid).scalar()
+        return Session().query(User).filter_by(id=objectid).scalar()
 
 
 definitionRepo = DefinitionRepo()
