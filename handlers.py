@@ -24,24 +24,17 @@ class PersistenceAwareHandler:
         raise NotImplementedError("Not implemented")
 
 
-class ListDefinitionsHandler(PersistenceAwareHandler):
-
-    def __init__(self, definition_repo):
-        super().__init__()
-        self.definitionRepo = definition_repo
-
-    def handle(self, bot, update):
-        definitions = self.definitionRepo.findAll()
-        reply = update.message.reply_text
-        for definition in definitions:
-            reply("/wtf {}".format(definition))
-
-
 class DefinitionHandler(PersistenceAwareHandler):
 
     def __init__(self, definition_repo):
         super().__init__()
         self.definitionRepo = definition_repo
+
+    def handle_list(self, bot, update):
+        definitions = self.definitionRepo.findAll()
+        reply = update.message.reply_text
+        for definition in definitions:
+            reply("/wtf {}".format(definition))
 
     def handle(self, bot, update):
         text = update.message.text
@@ -95,7 +88,6 @@ class HelloHandler(PersistenceAwareHandler):
 
 
 definitionHandler = DefinitionHandler(definitionRepo)
-listDefinitionsHandler = ListDefinitionsHandler(definitionRepo)
 helloHandler = HelloHandler(userRepo)
 
 def error(bot, update, error):
