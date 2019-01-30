@@ -5,12 +5,12 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Inlin
 
 from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery
 
-
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
+
 
 def main():
     logger.info("Starting up...")
@@ -28,6 +28,7 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("wtf", definitionHandler.handle_command))
+    dp.add_handler(CommandHandler("list", definitionHandler.handle_list))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("hallo", helloHandler.handle_command))
     dp.add_handler(CommandHandler("help", help))

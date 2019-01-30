@@ -30,6 +30,18 @@ class DefinitionHandler(PersistenceAwareHandler):
         super().__init__()
         self.definitionRepo = definition_repo
 
+    def handle_list(self, bot, update):
+        text = update.message.text
+        logger.debug("List received: %s", text)
+
+        definitions = self.definitionRepo.findAll()
+        reply = update.message.reply_text
+        reply_list = "I know these definitions: \n"
+        for definition in definitions:
+            reply_list += "/wtf {}\n".format(definition.term)
+
+        reply(reply_list)
+
     def handle(self, bot, update):
         text = update.message.text
         reply = update.message.reply_text
@@ -84,6 +96,7 @@ class HelloHandler(PersistenceAwareHandler):
 definitionHandler = DefinitionHandler(definitionRepo)
 helloHandler = HelloHandler(userRepo)
 
+
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
@@ -92,13 +105,14 @@ def error(bot, update, error):
 def help(bot, update):
     """Send a message when the command /help is issued."""
     logger.debug("Help received: %s", update.message.text)
-    update.message.reply_text('Use the /wtf command!')
+    update.message.reply_text('Use the /wtf or /list command!')
 
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
     logger.debug("Start received: %s", update.message.text)
-    update.message.reply_text('Hi! Please use the WTF command to get data.')
+    update.message.reply_text('Hi! Please use /list to get all definitions and /wtf to get info for a term')
+
 
 def echo(bot, update):
     """Echo the user message."""
@@ -131,5 +145,3 @@ def inlinequery(bot, update):
                 parse_mode=ParseMode.MARKDOWN))]
 
     update.inline_query.answer(results)
-
-
