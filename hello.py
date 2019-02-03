@@ -1,7 +1,9 @@
 import random
 
-GREETINGS = ["Guten Tag", "Tag", "Hallo", "Grüß Gott", "Grüß dich", "Grüß Sie", "Griaß Eich",
-             "Grüezi", "Grüessech", "Servus", "Heil", "Moin", "Ahoi", "Willkommen", "Mahlzeit"]
+GREETINGS = [
+    "Guten Tag", "Tag", "Hallo", "Grüß Gott", "Griaß Gott", "Grüß Dich", "Grüß Sie", "Griaß Eich", "Griaß Di",
+    "Habe die Ehre", "Grüezi", "Grüessech", "Servus", "Heil", "Moin", "Abend", "Ahoi", "Willkommen", "Mahlzeit"
+]
 
 
 def get_hello():

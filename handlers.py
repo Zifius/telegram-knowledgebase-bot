@@ -79,16 +79,7 @@ class HelloHandler(PersistenceAwareHandler):
         self.userRepo = user_repo
 
     def handle(self, bot, update):
-        user_id = update.message.from_user.id
-        user_name = update.message.from_user.first_name
         reply = update.message.reply_text
-
-        user = self.userRepo.findById(user_id)
-        if user is None:
-            logger.debug("Adding new user with ID {}".format(user_id))
-            self.userRepo.persist(User(id=user_id, name=user_name))
-        else:
-            logger.debug("User {} exists".format(user_id))
 
         reply(("{}, {}!".format(hello.get_hello(), update.message.from_user.first_name)))
 
