@@ -1,94 +1,115 @@
-from sqlalchemy import Table, Column, ForeignKey,  Integer, String, Text, DateTime
-from sqlalchemy.orm import relationship, sessionmaker, backref, scoped_session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-Base = declarative_base()
+from datetime import datetime
+from sqlalchemy import Column, ForeignKey,  Integer, String, Text, DateTime, UniqueConstraint
+from sqlalchemy.orm import relationship
+from base import Base
 
 
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
+    telegram_id = Column(Integer, index=True, unique=True)
     name = Column(String(250))
-    definitions = relationship('Definition', cascade="all,delete-orphan",
-                               backref=backref('user', cascade='all,delete-orphan', single_parent=True))
+
+    def __init__(self, telegram_id, name):
+        self.telegram_id = telegram_id
+        self.name = name
+
+    @staticmethod
+    def find(session, telegram_id):
+        results = session.query(User).filter_by(telegram_id=telegram_id).first()
+        return results
+
+    @staticmethod
+    def insert(session, telegram_id, name):
+        user = User(telegram_id, name)
+        session.add(user)
+        return user
+
+    @staticmethod
+    def find_create(session, telegram_id, name):
+        user = User.find(session, telegram_id)
+        if not user:
+            user = User.insert(session, telegram_id, name)
+        return user
 
 
 class Channel(Base):
     __tablename__ = 'channel'
     id = Column(Integer, primary_key=True)
     name = Column(String(250))
+    telegram_id = Column(Integer, index=True, unique=True)
+
+    def __init__(self, telegram_id, name):
+        self.telegram_id = telegram_id
+        self.name = name
+
+    @staticmethod
+    def insert(session, telegram_id, name):
+        channel = Channel(telegram_id, name)
+        session.add(channel)
+        return channel
+
+    @staticmethod
+    def find_create(session, telegram_id, name):
+        channel = Channel.find(session, telegram_id)
+        if not channel:
+            channel = Channel.insert(session, telegram_id, name)
+        return channel
+
+    @staticmethod
+    def find(session, telegram_id):
+        return session.query(Channel).filter_by(telegram_id=telegram_id).first()
 
 
 class Definition(Base):
     __tablename__ = 'definition'
     id = Column(Integer, primary_key=True)
-    parent_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'))
-    term = Column(String(250))
-    content = Column(Text)
-    created = Column(DateTime)
-    updated = Column(DateTime)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    # create 1 to many relationship
+    user = relationship('User', backref='user')
+    channel_id = Column(Integer, ForeignKey('channel.id'), index=True)
+    channel = relationship('Channel', backref='channel')
+    term = Column(String(250), nullable=False)
+    content = Column(Text, nullable=False)
+    created = Column(DateTime, nullable=False)
+    updated = Column(DateTime, onupdate=datetime.now)
 
-    def __init__(self, term, content):
+    __table_args__ = (UniqueConstraint('channel_id', 'term', name='channel_term_uc'),)
+
+    def __init__(self, term, content, user, channel):
+        self.user = user
+        self.channel = channel
         self.term = term
         self.content = content
+        self.created = datetime.now()
 
+    @staticmethod
+    def find_term(session, channel_telegram_id, term):
+            return session.query(Definition).join(Channel)\
+                .filter(Channel.telegram_id == channel_telegram_id)\
+                .filter(Definition.term == term)\
+                .first()
 
-association_table = Table('channel_definition', Base.metadata,
-    Column('channel', Integer, ForeignKey('channel.id')),
-    Column('definition', Integer, ForeignKey('definition.id'))
-)
+    @staticmethod
+    def find_all(session, channel_telegram_id):
+        return session.query(Definition).join(Channel) \
+                .filter(Channel.telegram_id == channel_telegram_id) \
+                .order_by(Definition.id) \
+                .all()
 
-# Create an engine that stores data in the local directory's
-# bot.db file.
-engine = create_engine('sqlite:///bot.sqlite')
+    @staticmethod
+    def insert(session, user, channel, term, term_content):
+        definition = Definition(term, term_content, user, channel)
+        session.add(definition)
+        return definition
 
-# Create all tables in the engine. This is equivalent to "Create Table"
-# statements in raw SQL.
-Base.metadata.create_all(engine)
-_SessionFactory = sessionmaker(bind=engine)
-Session = scoped_session(_SessionFactory)
-
-
-def session_factory():
-    return _SessionFactory()
-
-
-class DefinitionRepo:
-    """Repo for our deffs"""
-
-    def persist(self, quote):
-        """TODO: add update / create time"""
-        Session().add(quote)
-
-    def delete(self, object_id):
-        Session().delete(self.findById(object_id))
-
-    def findByTerm(self, term):
-        return Session().query(Definition).filter_by(term=term).scalar()
-
-    def findAll(self):
-        return Session().query(Definition).order_by(Definition.id)
-
-    def findById(self, objectid):
-        return Session().query(Definition).filter_by(id=objectid).scalar()
-
-
-class UserRepo:
-    """Repo for our quotes"""
-
-    def persist(self, user):
-        Session().add(user)
-
-    def delete(self, object_id):
-        Session().delete(self.findById(object_id))
-
-    def findById(self, objectid):
-        return Session().query(User).filter_by(id=objectid).scalar()
-
-
-definitionRepo = DefinitionRepo()
-userRepo = UserRepo()
+    @staticmethod
+    def insert_update(session, user, channel, term, term_content):
+        definition = Definition.find_term(session, channel.telegram_id, term)
+        if not definition:
+            Definition.insert(session, user, channel, term, term_content)
+        else:
+            definition.content = term_content
+            definition.user = user
 
 
