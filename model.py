@@ -119,5 +119,11 @@ class Definition(Base):
             else:
                 raise NotAuthorizedException
 
+    @staticmethod
+    def delete(definition):
+        if definition:
+            Session().delete(definition)
+
+
 
 

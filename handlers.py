@@ -105,8 +105,8 @@ class DefinitionHandler:
             # allowed only for channel admins and creator of definition
             admins = get_admin_ids(bot, channel_telegram_id) + [definition.user.telegram_id]
             if user_telegram_id in admins:
-                Session().delete(definition)
-                reply("Term '{}' was removed".format(definition.term))
+                Definition.delete(definition)
+                reply("Term '{}' was removed".format(term))
             else:
                 reply("You are not authorised to delete definition '{}'".format(term))
 

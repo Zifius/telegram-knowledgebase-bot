@@ -6,7 +6,7 @@ class MWT(object):
     _caches = {}
     _timeouts = {}
 
-    def __init__(self,timeout=2):
+    def __init__(self, timeout=2):
         self.timeout = timeout
 
     def collect(self):
