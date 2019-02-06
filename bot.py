@@ -3,7 +3,8 @@ import os
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 
-from handlers import definitionHandler, start, helloHandler, error, echo, inlinequery, help
+from base import Base, engine
+from handlers import start, error, help, DefinitionHandler, HelloHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,19 +24,32 @@ def main():
 
     updater = Updater(os.environ["bot_token"])
 
+    # Create all tables in the engine. This is equivalent to "Create Table"
+    # statements in raw SQL.
+    Base.metadata.create_all(engine)
+
+    definition_handler = DefinitionHandler()
+    hello_handler = HelloHandler()
+
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("wtf", definitionHandler.handle_command))
-    dp.add_handler(CommandHandler("list", definitionHandler.handle_list))
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("hallo", helloHandler.handle_command))
     dp.add_handler(CommandHandler("help", help))
 
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("hallo", hello_handler.handle_hello))
+    dp.add_handler(CommandHandler("wtf", definition_handler.handle_wtf))
+    dp.add_handler(CommandHandler("list", definition_handler.handle_list))
+    dp.add_handler(CommandHandler("def", definition_handler.handle_def))
+    dp.add_handler(CommandHandler("rm", definition_handler.handle_rm))
 
-    dp.add_handler(InlineQueryHandler(inlinequery))
+
+    # on noncommand i.e message - echo the message on Telegram
+    # dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # dp.add_handler(InlineQueryHandler(inlinequery))
 
     # log all errors
     dp.add_error_handler(error)
