@@ -152,7 +152,8 @@ def echo(bot, update):
     update.message.reply_text(update.message.text)
 
 
-@MWT(timeout=60*60)
+# @MWT(timeout=60*60)
+# TODO call clean up before switching on
 def get_admin_ids(bot, chat_id):
     """
     Returns a list of admin IDs for a given chat. Results are cached for 1 hour.
