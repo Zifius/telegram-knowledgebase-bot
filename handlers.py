@@ -32,8 +32,8 @@ class DefinitionHandler:
         logger.debug("/list received: %s", text)
         channel_telegram_id = update.message.chat.id
 
-        with session_scope() as session:
-            definitions = Definition.find_all(session, channel_telegram_id)
+        with session_scope():
+            definitions = Definition.find_all(channel_telegram_id)
             reply = update.message.reply_text
 
             if definitions:
@@ -58,8 +58,8 @@ class DefinitionHandler:
             return
 
         term = parts[1]
-        with session_scope() as session:
-            definition = Definition.find_term(session, channel_telegram_id, term)
+        with session_scope():
+            definition = Definition.find_term(channel_telegram_id, term)
 
             if not definition:
                 reply("I do not have any info for the term: '{}'".format(term))
@@ -80,10 +80,10 @@ class DefinitionHandler:
         if len(parts) == 3:
             term = parts[1]
             term_content = parts[2]
-            with session_scope() as session:
-                user = User.find_create(session, user_telegram_id, user_telegram_name)
-                channel = Channel.find_create(session, channel_telegram_id, channel_telegram_name)
-                Definition.insert_update(session, user, channel, term, term_content)
+            with session_scope():
+                user = User.find_create(user_telegram_id, user_telegram_name)
+                channel = Channel.find_create(channel_telegram_id, channel_telegram_name)
+                Definition.insert_update(user, channel, term, term_content)
                 logger.debug("Saved definition for %s", term)
             reply("Your definition for term '{}' has been saved".format(term))
         else:
@@ -103,7 +103,7 @@ class DefinitionHandler:
 
         with session_scope() as session:
             term = parts[1]
-            definition = Definition.find_term(session, channel_telegram_id, term)
+            definition = Definition.find_term(channel_telegram_id, term)
             if definition is None:
                 reply("Term '{}' I know not".format(term))
             else:

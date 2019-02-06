@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, ForeignKey,  Integer, String, Text, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
-from base import Base
+from base import Base, Session
 
 
 class User(Base):
@@ -15,21 +15,21 @@ class User(Base):
         self.name = name
 
     @staticmethod
-    def find(session, telegram_id):
-        results = session.query(User).filter_by(telegram_id=telegram_id).first()
+    def find(telegram_id):
+        results = Session().query(User).filter_by(telegram_id=telegram_id).first()
         return results
 
     @staticmethod
-    def insert(session, telegram_id, name):
+    def insert(telegram_id, name):
         user = User(telegram_id, name)
-        session.add(user)
+        Session().add(user)
         return user
 
     @staticmethod
-    def find_create(session, telegram_id, name):
-        user = User.find(session, telegram_id)
+    def find_create(telegram_id, name):
+        user = User.find(telegram_id)
         if not user:
-            user = User.insert(session, telegram_id, name)
+            user = User.insert(telegram_id, name)
         return user
 
 
@@ -44,21 +44,21 @@ class Channel(Base):
         self.name = name
 
     @staticmethod
-    def insert(session, telegram_id, name):
+    def insert(telegram_id, name):
         channel = Channel(telegram_id, name)
-        session.add(channel)
+        Session().add(channel)
         return channel
 
     @staticmethod
-    def find_create(session, telegram_id, name):
-        channel = Channel.find(session, telegram_id)
+    def find_create(telegram_id, name):
+        channel = Channel.find(telegram_id)
         if not channel:
-            channel = Channel.insert(session, telegram_id, name)
+            channel = Channel.insert(telegram_id, name)
         return channel
 
     @staticmethod
-    def find(session, telegram_id):
-        return session.query(Channel).filter_by(telegram_id=telegram_id).first()
+    def find(telegram_id):
+        return Session().query(Channel).filter_by(telegram_id=telegram_id).first()
 
 
 class Definition(Base):
@@ -84,30 +84,30 @@ class Definition(Base):
         self.created = datetime.now()
 
     @staticmethod
-    def find_term(session, channel_telegram_id, term):
-            return session.query(Definition).join(Channel)\
+    def find_term(channel_telegram_id, term):
+            return Session().query(Definition).join(Channel)\
                 .filter(Channel.telegram_id == channel_telegram_id)\
                 .filter(Definition.term == term)\
                 .first()
 
     @staticmethod
-    def find_all(session, channel_telegram_id):
-        return session.query(Definition).join(Channel) \
+    def find_all(channel_telegram_id):
+        return Session().query(Definition).join(Channel) \
                 .filter(Channel.telegram_id == channel_telegram_id) \
                 .order_by(Definition.id) \
                 .all()
 
     @staticmethod
-    def insert(session, user, channel, term, term_content):
+    def insert(user, channel, term, term_content):
         definition = Definition(term, term_content, user, channel)
-        session.add(definition)
+        Session().add(definition)
         return definition
 
     @staticmethod
-    def insert_update(session, user, channel, term, term_content):
-        definition = Definition.find_term(session, channel.telegram_id, term)
+    def insert_update(user, channel, term, term_content):
+        definition = Definition.find_term(channel.telegram_id, term)
         if not definition:
-            Definition.insert(session, user, channel, term, term_content)
+            Definition.insert(user, channel, term, term_content)
         else:
             definition.content = term_content
             definition.user = user
