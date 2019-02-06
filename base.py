@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import NullPool
-from contextlib import contextmanager
 
 Base = declarative_base()
 
@@ -14,16 +13,17 @@ _SessionFactory = sessionmaker(bind=engine)
 Session = scoped_session(_SessionFactory)
 
 
-@contextmanager
-def session_scope():
-    """Provide a transactional scope around a series of operations."""
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+def transactional(func):
+    def call(*args, **kwargs):
+        session = Session()
+        try:
+            result = func(*args, **kwargs)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+        return result
+    return call
 
