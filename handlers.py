@@ -45,7 +45,7 @@ class DefinitionHandler:
             reply("Please provide a term for lookup.")
             return
 
-        term = parts[1]
+        term = parts[1].lower()
         definition = Definition.find_term(channel_telegram_id, term)
 
         if not definition:
@@ -66,7 +66,7 @@ class DefinitionHandler:
         reply = update.message.reply_text
         parts = text.split(" ", 2)
         if len(parts) == 3:
-            term = parts[1]
+            term = parts[1].lower()
             term_content = parts[2]
             try:
                 user = User.find_create(user_telegram_id, user_telegram_name)
@@ -97,7 +97,7 @@ class DefinitionHandler:
             reply("Please provide a term to remove.")
             return
 
-        term = parts[1]
+        term = parts[1].lower()
         definition = Definition.find_term(channel_telegram_id, term)
         if definition is None:
             reply("Term '{}' I know not".format(term))
