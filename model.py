@@ -96,7 +96,7 @@ class Definition(Base):
     def find_all(channel_telegram_id):
         return Session().query(Definition).join(Channel) \
                 .filter(Channel.telegram_id == channel_telegram_id) \
-                .order_by(Definition.id) \
+                .order_by(Definition.term) \
                 .all()
 
     @staticmethod
