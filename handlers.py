@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class DefinitionHandler:
-
     @spam_protect
     @transactional
     def handle_list(self, bot, update):
@@ -54,7 +53,10 @@ class DefinitionHandler:
         if not definition:
             reply("I do not have any info for the term: '{}'".format(term))
         else:
-            reply(("Term '{}' means: {}".format(definition.term, definition.content)))
+            reply(("Term '{}' was created on {:%d.%m.%Y} by {}.\n{}".format(definition.term,
+                                                                           definition.created,
+                                                                           definition.user.name or "unknown",
+                                                                           definition.content)))
 
     @spam_protect
     @transactional
@@ -117,7 +119,6 @@ class DefinitionHandler:
 
 
 class HelloHandler:
-
     def __init__(self):
         self.greeting = [
             "Guten Tag", "Tag", "Hallo", "Grüß Gott", "Griaß Gott", "Grüß Dich", "Grüß Sie", "Griaß Eich", "Griaß Di",
