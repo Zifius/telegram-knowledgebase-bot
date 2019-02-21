@@ -23,7 +23,7 @@ class AntiSpam:
         """
         check if the current identifier has not exceeded the amount of invocations in the given threshold
         :param identifier: string: unique identifier for the action to check against, e.g. user_id, user_id+operation
-        :return: true if this is not spam, false otherwise
+        :return: true if this is spam, false otherwise
         """
         logger.debug("Checking for spam for identifier: %s", identifier)
         self._lookup.setdefault(identifier, []).append(time.time())
