@@ -10,7 +10,8 @@ class AntiSpam:
 
     def __init__(self, count=5, timeout=10) -> None:
         """
-        Cleat instance of the class
+        Build an antispam checker that can check if an action was triggered a certain amount of times in the provided
+         timeout
         :param count: of actions to be allowed within the configured time
         :param timeout: for which the actions are remembered and counted
         """
@@ -20,7 +21,7 @@ class AntiSpam:
 
     def is_spam(self, identifier):
         """
-        check if the current identifier has exceeded the amount of invocations in the given threshold
+        check if the current identifier has not exceeded the amount of invocations in the given threshold
         :param identifier: string: unique identifier for the action to check against, e.g. user_id, user_id+operation
         :return: true if this is not spam, false otherwise
         """

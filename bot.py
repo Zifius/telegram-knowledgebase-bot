@@ -56,7 +56,7 @@ def main():
     anti_spam = AntiSpam()
 
     # register anti spam cleanup with the bot's job queue
-    updater.job_queue.run_repeating(callback=lambda *dont_care: anti_spam.clean(), interval=1, name="AntiSpam cleanup")
+    updater.job_queue.run_repeating(callback=lambda *_: anti_spam.clean(), interval=1, name="AntiSpam cleanup")
 
     # log all errors
     dp.add_error_handler(error)
