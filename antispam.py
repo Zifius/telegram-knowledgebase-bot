@@ -21,7 +21,7 @@ class AntiSpam:
 
     def is_spam(self, identifier):
         """
-        check if the current identifier has not exceeded the amount of invocations in the given threshold
+        check if the current identifier has exceeded the amount of invocations in the given threshold
         :param identifier: string: unique identifier for the action to check against, e.g. user_id, user_id+operation
         :return: true if this is spam, false otherwise
         """
