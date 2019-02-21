@@ -1,16 +1,20 @@
 import time
 import logging
+from util import singleton
 
 logger = logging.getLogger(__name__)
 
 
+@singleton
 class AntiSpam:
-    _count = None
-    _timeout = None
     _lookup = {}
 
-    def __init__(self, count=2, timeout=10) -> None:
-        super().__init__()
+    def __init__(self, count=5, timeout=10) -> None:
+        """
+        Cleat instance of the class
+        :param count: of actions to be allowed within the configured time
+        :param timeout: for which the actions are remembered and counted
+        """
         self._count = count
         self._timeout = timeout
 
@@ -39,14 +43,11 @@ class AntiSpam:
                 self._lookup.pop(identifier, None)
 
 
-anti_spam = AntiSpam()
-
-
 def spam_protect(func):
     def call(*args, **kwargs):
         if len(args) is 3:
             update = args[2]
-            if anti_spam.is_spam(update.message.from_user.id):
+            if AntiSpam().is_spam(update.message.from_user.id):
                 update.message.reply_text("You are too talkative, pls wait a bit and try again")
                 return
         return func(*args, **kwargs)

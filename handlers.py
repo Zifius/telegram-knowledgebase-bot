@@ -128,6 +128,7 @@ class HelloHandler:
         hello_random = random.SystemRandom()
         return hello_random.choice(self.greeting)
 
+    @spam_protect
     def handle_hello(self, bot, update):
         reply = update.message.reply_text
 
