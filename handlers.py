@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class DefinitionHandler:
-    @spam_protect
+    @spam_protect(count=3, timeout=10, message="please do not abuse the list command")
     @transactional
     def handle_list(self, bot, update):
         text = update.message.text
@@ -33,7 +33,7 @@ class DefinitionHandler:
 
         reply(reply_list)
 
-    @spam_protect
+    @spam_protect(count=5, timeout=10, message="you are allowed only 5 requests in 10 seconds")
     @transactional
     def handle_wtf(self, bot, update):
         text = update.message.text
@@ -58,7 +58,7 @@ class DefinitionHandler:
                                                                            definition.user.name or "unknown",
                                                                            definition.content)))
 
-    @spam_protect
+    @spam_protect()
     @transactional
     def handle_def(self, bot, update):
         text = update.message.text
@@ -89,7 +89,7 @@ class DefinitionHandler:
         else:
             reply("Please provide a term and it's content to create or update.")
 
-    @spam_protect
+    @spam_protect()
     @transactional
     def handle_rm(self, bot, update):
         text = update.message.text
@@ -129,7 +129,7 @@ class HelloHandler:
         hello_random = random.SystemRandom()
         return hello_random.choice(self.greeting)
 
-    @spam_protect
+    @spam_protect()
     def handle_hello(self, bot, update):
         reply = update.message.reply_text
 
