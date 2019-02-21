@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class DefinitionHandler:
-
     @transactional
     def handle_list(self, bot, update):
         text = update.message.text
@@ -51,7 +50,10 @@ class DefinitionHandler:
         if not definition:
             reply("I do not have any info for the term: '{}'".format(term))
         else:
-            reply(("Term '{}' means: {}".format(definition.term, definition.content)))
+            reply(("Term '{}' was created on {:%d.%m.%Y} by {}.\n{}".format(definition.term,
+                                                                           definition.created,
+                                                                           definition.user.name or "unknown",
+                                                                           definition.content)))
 
     @transactional
     def handle_def(self, bot, update):
@@ -112,7 +114,6 @@ class DefinitionHandler:
 
 
 class HelloHandler:
-
     def __init__(self):
         self.greeting = [
             "Guten Tag", "Tag", "Hallo", "Grüß Gott", "Griaß Gott", "Grüß Dich", "Grüß Sie", "Griaß Eich", "Griaß Di",
