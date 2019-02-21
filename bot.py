@@ -1,10 +1,11 @@
 import logging
 import os
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler
+from telegram.ext import Updater, CommandHandler
 
 from base import Base, engine
 from handlers import start, error, help, DefinitionHandler, HelloHandler
+from antispam import AntiSpam
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,7 +23,7 @@ def main():
         logger.error("Cannot find bot_token env. variable that is required. Stopping.")
         exit(-1)
 
-    updater = Updater(os.environ["bot_token"])
+    updater: Updater = Updater(os.environ["bot_token"])
 
     # Create all tables in the engine. This is equivalent to "Create Table"
     # statements in raw SQL.
@@ -50,6 +51,12 @@ def main():
     # dp.add_handler(MessageHandler(Filters.text, echo))
 
     # dp.add_handler(InlineQueryHandler(inlinequery))
+
+    # TODO: use configuration here
+    anti_spam = AntiSpam()
+
+    # register anti spam cleanup with the bot's job queue
+    updater.job_queue.run_repeating(callback=lambda *_: anti_spam.clean(), interval=1, name="AntiSpam cleanup")
 
     # log all errors
     dp.add_error_handler(error)

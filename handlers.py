@@ -6,13 +6,15 @@ import random
 # from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMode
 # from telegram.utils.helpers import escape_markdown
 from model import Definition, Channel, User, NotAuthorizedException
-from base import transactional, Session
+from base import transactional
+from antispam import spam_protect
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
 
 
 class DefinitionHandler:
+    @spam_protect
     @transactional
     def handle_list(self, bot, update):
         text = update.message.text
@@ -31,6 +33,7 @@ class DefinitionHandler:
 
         reply(reply_list)
 
+    @spam_protect
     @transactional
     def handle_wtf(self, bot, update):
         text = update.message.text
@@ -55,6 +58,7 @@ class DefinitionHandler:
                                                                            definition.user.name or "unknown",
                                                                            definition.content)))
 
+    @spam_protect
     @transactional
     def handle_def(self, bot, update):
         text = update.message.text
@@ -85,6 +89,7 @@ class DefinitionHandler:
         else:
             reply("Please provide a term and it's content to create or update.")
 
+    @spam_protect
     @transactional
     def handle_rm(self, bot, update):
         text = update.message.text
@@ -124,6 +129,7 @@ class HelloHandler:
         hello_random = random.SystemRandom()
         return hello_random.choice(self.greeting)
 
+    @spam_protect
     def handle_hello(self, bot, update):
         reply = update.message.reply_text
 
