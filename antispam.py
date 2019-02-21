@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 @singleton
 class AntiSpam:
-    _lookup = {}
 
     def __init__(self, count=5, timeout=10) -> None:
         """
@@ -15,6 +14,7 @@ class AntiSpam:
         :param count: of actions to be allowed within the configured time
         :param timeout: for which the actions are remembered and counted
         """
+        self._lookup = {}
         self._count = count
         self._timeout = timeout
 
