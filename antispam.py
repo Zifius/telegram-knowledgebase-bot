@@ -1,12 +1,12 @@
 import time
 import logging
-from util import singleton
+from functools import wraps
 
 logger = logging.getLogger(__name__)
 
 
-@singleton
 class AntiSpam:
+    _lookup = {}
 
     def __init__(self, count=5, timeout=10) -> None:
         """
@@ -15,7 +15,6 @@ class AntiSpam:
         :param count: of actions to be allowed within the configured time
         :param timeout: for which the actions are remembered and counted
         """
-        self._lookup = {}
         self._count = count
         self._timeout = timeout
 
@@ -26,31 +25,39 @@ class AntiSpam:
         :return: true if this is spam, false otherwise
         """
         logger.debug("Checking for spam for identifier: %s", identifier)
-        self._lookup.setdefault(identifier, []).append(time.time())
-        return len(self._lookup[identifier]) > self._count
+        AntiSpam._lookup.setdefault(identifier, []).append(time.time() + self._timeout)
+        is_spam = len(self._lookup[identifier]) > self._count
+        logger.debug("%s is spam: %s", identifier, is_spam)
+        return is_spam
 
-    def clean(self):
+    @staticmethod
+    def clean():
         """
         cleanup times that are pass the configured timeout
         :return: void
         """
         logger.debug("Cleaning up..")
-        threshold = time.time() - self._timeout
-        for identifier in self._lookup:
-            pruned = [t for t in self._lookup[identifier] if t > threshold]
+        current_time = time.time()
+        for identifier in AntiSpam._lookup:
+            pruned = [t for t in AntiSpam._lookup[identifier] if t > current_time]
             if pruned:
-                self._lookup[identifier] = pruned
+                AntiSpam._lookup[identifier] = pruned
             else:
-                self._lookup.pop(identifier, None)
+                AntiSpam._lookup.pop(identifier, None)
 
 
-def spam_protect(func):
-    def call(*args, **kwargs):
-        if len(args) is 3:
-            update = args[2]
-            if AntiSpam().is_spam(update.message.from_user.id):
-                update.message.reply_text("You are too talkative, pls wait a bit and try again")
-                return
-        return func(*args, **kwargs)
-    return call
+def spam_protect(count=5, timeout=10, message="You are too talkative, pls wait a bit and try again"):
+    anti_spam = AntiSpam(count, timeout)
+
+    def decorate(func):
+        @wraps(func)
+        def call(*args, **kwargs):
+            if len(args) is 3:
+                update = args[2]
+                if anti_spam.is_spam(update.message.from_user.id):
+                    update.message.reply_text(message)
+                    return
+            return func(*args, **kwargs)
+        return call
+    return decorate
 
