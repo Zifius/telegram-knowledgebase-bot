@@ -3,8 +3,6 @@ from sqlalchemy import Column, ForeignKey,  Integer, String, Text, DateTime, Uni
 from sqlalchemy.orm import relationship
 from base import Base, Session
 
-class NotAuthorizedException(Exception):
-    pass
 
 class User(Base):
     __tablename__ = 'user'
@@ -106,18 +104,13 @@ class Definition(Base):
         return definition
 
     @staticmethod
-    def insert_update(user, channel, term, term_content, admins):
+    def insert_update(user, channel, term, term_content):
         definition = Definition.find_term(channel.telegram_id, term)
         if not definition:
             Definition.insert(user, channel, term, term_content)
         else:
-            # check rights - update allowed for admins and user, who created definition
-            admins.append(definition.user.telegram_id)
-            if user.telegram_id in admins:
-                definition.content = term_content
-                definition.user = user
-            else:
-                raise NotAuthorizedException
+            definition.content = term_content
+            definition.user = user
 
     @staticmethod
     def delete(definition):

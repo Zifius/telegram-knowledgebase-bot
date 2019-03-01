@@ -5,8 +5,8 @@ import random
 # from uuid import uuid4
 # from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMode
 # from telegram.utils.helpers import escape_markdown
-from model import Definition, Channel, User, NotAuthorizedException
-from base import transactional
+from model import Definition, Channel, User
+from base import transactional, only_admin
 from antispam import spam_protect
 from mwt import MWT
 
@@ -58,7 +58,9 @@ class DefinitionHandler:
                                                                            definition.user.name or "unknown",
                                                                            definition.content)))
 
+
     @spam_protect()
+    @only_admin()
     @transactional
     def handle_def(self, bot, update):
         text = update.message.text
@@ -70,35 +72,30 @@ class DefinitionHandler:
         user_telegram_name = update.message.from_user.username
 
         reply = update.message.reply_text
-        parts = text.split(" ", 2)
+        parts = text.split(None, 2)
         if len(parts) == 3:
             term = parts[1].lower()
             term_content = parts[2]
-            try:
-                user = User.find_create(user_telegram_id, user_telegram_name)
-                channel = Channel.find_create(channel_telegram_id, channel_telegram_name)
-                admins = get_admin_ids(bot, channel_telegram_id)
-                if not admins:
-                    # in case of private chats evey user is admin and has all rights
-                    admins = [user_telegram_id]
-                Definition.insert_update(user, channel, term, term_content, admins)
-                logger.debug("Saved definition for %s", term)
-                reply("Your definition for term '{}' has been saved".format(term))
-            except NotAuthorizedException:
-                reply("You are not authorised to change this definition '{}".format(term))
+            user = User.find_create(user_telegram_id, user_telegram_name)
+            channel = Channel.find_create(channel_telegram_id, channel_telegram_name)
+
+            Definition.insert_update(user, channel, term, term_content)
+
+            logger.debug("Saved definition for %s", term)
+            reply("Your definition for term '{}' has been saved".format(term))
         else:
             reply("Please provide a term and it's content to create or update.")
 
     @spam_protect()
+    @only_admin()
     @transactional
     def handle_rm(self, bot, update):
         text = update.message.text
         logger.debug("/rm received: %s", text)
         channel_telegram_id = update.message.chat.id
-        user_telegram_id = update.message.from_user.id
 
         reply = update.message.reply_text
-        parts = text.split(" ", 2)
+        parts = text.split(None, 2)
 
         if len(parts) <= 1:
             reply("Please provide a term to remove.")
@@ -109,13 +106,8 @@ class DefinitionHandler:
         if definition is None:
             reply("Term '{}' I know not".format(term))
         else:
-            # allowed only for channel admins and creator of definition
-            admins = get_admin_ids(bot, channel_telegram_id) + [definition.user.telegram_id]
-            if user_telegram_id in admins:
-                Definition.delete(definition)
-                reply("Term '{}' was removed".format(term))
-            else:
-                reply("You are not authorised to delete definition '{}'".format(term))
+            Definition.delete(definition)
+            reply("Term '{}' was removed".format(term))
 
 
 class HelloHandler:
@@ -158,18 +150,6 @@ def echo(bot, update):
     logger.debug("Echo received: %s", update.message.text)
     update.message.reply_text(update.message.text)
 
-
-# @MWT(timeout=60*60)
-# TODO call clean up before switching on
-def get_admin_ids(bot, chat_id):
-    """
-    Returns a list of admin IDs for a given chat. Results are cached for 1 hour.
-    Private chats and groups with all_members_are_administrator flag are handled as empty admin list
-    """
-    chat = bot.getChat(chat_id)
-    if chat.type == "private" or chat.all_members_are_administrators:
-        return []
-    return [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
 
 #
 # def inlinequery(bot, update):
