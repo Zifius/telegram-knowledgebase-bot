@@ -58,8 +58,9 @@ class DefinitionHandler:
                                                                            definition.user.name or "unknown",
                                                                            definition.content)))
 
-    @only_admin()
+
     @spam_protect()
+    @only_admin()
     @transactional
     def handle_def(self, bot, update):
         text = update.message.text
@@ -85,8 +86,8 @@ class DefinitionHandler:
         else:
             reply("Please provide a term and it's content to create or update.")
 
-    @only_admin()
     @spam_protect()
+    @only_admin()
     @transactional
     def handle_rm(self, bot, update):
         text = update.message.text
