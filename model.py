@@ -30,6 +30,8 @@ class User(Base):
         user = User.find(telegram_id)
         if not user:
             user = User.insert(telegram_id, name)
+        if user.name != name:
+            user.name = name
         return user
 
 
