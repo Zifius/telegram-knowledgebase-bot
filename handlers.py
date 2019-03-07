@@ -69,7 +69,7 @@ class DefinitionHandler:
         channel_telegram_name = update.message.chat.username
 
         user_telegram_id = update.message.from_user.id
-        user_telegram_name = update.message.from_user.username
+        user_telegram_name = update.message.from_user.username or update.message.from_user.first_name or "Unknown"
 
         reply = update.message.reply_text
         parts = text.split(None, 2)
