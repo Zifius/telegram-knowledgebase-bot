@@ -1,6 +1,8 @@
+### Initial Setup
+
 Clone this repo. Install dependencies with `pip install -r requirements.txt`. It's better to use virtualenv.
 
-### Database update
+### Database Update
 
 Current database is placed in `bot.sqlite`. Models are defined in `models.py` via SQLAlchemy.
 
