@@ -58,7 +58,6 @@ class DefinitionHandler:
                                                                            definition.user.name or "unknown",
                                                                            definition.content)))
 
-
     @spam_protect()
     @only_admin()
     @transactional
@@ -137,6 +136,10 @@ def help(bot, update):
     """Send a message when the command /help is issued."""
     logger.debug("Help received: %s", update.message.text)
     update.message.reply_text('Use the /def, /wtf or /list command!')
+
+
+def version(bot, update):
+    update.message.reply_text('Bot Version: 1.0.0 (10 March 2019)')
 
 
 def start(bot, update):

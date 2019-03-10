@@ -4,7 +4,7 @@ import os
 from telegram.ext import Updater, CommandHandler
 
 from base import Base, engine
-from handlers import start, error, help, DefinitionHandler, HelloHandler
+from handlers import start, error, help, version, DefinitionHandler, HelloHandler
 from antispam import AntiSpam
 
 # Enable logging
@@ -32,12 +32,12 @@ def main():
     definition_handler = DefinitionHandler()
     hello_handler = HelloHandler()
 
-
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("version", version))
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("hallo", hello_handler.handle_hello))
@@ -46,8 +46,7 @@ def main():
     dp.add_handler(CommandHandler("def", definition_handler.handle_def))
     dp.add_handler(CommandHandler("rm", definition_handler.handle_rm))
 
-
-    # on noncommand i.e message - echo the message on Telegram
+    # on non-command i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler(Filters.text, echo))
 
     # dp.add_handler(InlineQueryHandler(inlinequery))

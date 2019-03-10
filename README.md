@@ -17,4 +17,3 @@ _Bot outputs all definitions_
 `/rm term`
 
 _Bot removes definition if it exists_
-
